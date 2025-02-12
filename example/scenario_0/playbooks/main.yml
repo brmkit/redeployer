@@ -1,0 +1,89 @@
+---
+# everything starts with a zerotier file - where we store the zerotier ips
+# so we can use them in this playbook
+- name: Start with a ZeroTier file
+  hosts: localhost
+  gather_facts: false
+  tasks:
+    - local_action:
+        module: copy
+        content: |
+          zerotier:
+        dest: zerotier_ips.yml
+        force: yes
+        
+# self explanatory
+- name: Setting up op-nix
+  hosts: operator-nix
+  become: true
+  roles:
+    - utils/rename
+    - utils/zerotier
+    - operator/nix
+
+# self explanatory
+- name: Setting up a payload server
+  hosts: payload-server
+  become: true
+  vars_files:
+    - zerotier_ips.yml
+  roles:
+    - utils/rename
+    - utils/zerotier
+    - services/hosting
+
+- name: Setting up r0
+  hosts: redirector-caddy
+  become: true
+  vars_files:
+    - zerotier_ips.yml
+  roles:
+    - utils/rename
+    - utils/zerotier
+    - redirector/caddy
+  vars:
+  # on the default Caddyfile we have two path /redirectme and /file
+  # in this scenario we want an ssh reverse tunnel to start a tunnel from c2 to r0 - easier to manage and more secure
+  # so we must redirect r0 to it's localhost
+    local_port: 443
+    redirect_to: "localhost"
+  # the redirection port - in this case can't be 443 (default for caddy roles) because we want to use it for c2 explained above
+    redirect_port: 4443
+  # this is the second path (/file) redirection ip - in this case we want to redirect to the payload server
+    redirect_to_file: "{{ zerotier['payload-server'] }}"
+
+- name: Setting up r1
+  hosts: redirector-caddy-2
+  become: true
+  vars_files:
+    - zerotier_ips.yml
+  roles:
+    - utils/rename
+    - utils/zerotier
+    - redirector/caddy
+  vars:
+  # a simple redirect - default port 443 - we want to redirect to r0 using the zerotier ip
+    local_port: 443
+    redirect_to: "{{ zerotier['redirector-caddy'] }}"
+  # same as above
+    redirect_to_file: "{{ zerotier['redirector-caddy'] }}"
+
+- name: Setting up Sliver C2
+  hosts: c2-sliver
+  become: true
+  vars_files:
+    - zerotier_ips.yml
+  roles:
+    - utils/rename
+    - utils/zerotier
+    - c2/sliver
+    - utils/sshfwd
+  vars:
+# we use a reverse ssh tunnel to access the r0 from c2
+    remote_user: "{{ ansible_user }}"
+    remote_ip: "{{ zerotier['redirector-caddy'] }}"
+# creating a tunnel - start with the port of r0 we want to use
+    remote_port: 4443
+# to the local port we want to use for c2 listner
+    local_port: 443
+# that's it - we have a secure connection from c2 to r0

@@ -1,0 +1,30 @@
+---
+- name: Install docker and docker-compose
+  include_role:
+    name: utils/docker
+
+- name: Download bloodhound docker-compose
+  uri:
+    url: 'https://ghst.ly/getbhce'
+    dest: "/home/{{ ansible_user }}/bloodhound-ce/docker-compose.yml"
+  
+- name: Create an .env file 
+  copy:
+    content: |
+      BLOODHOUND_HOST=0.0.0.0
+      bhe_default_admin_password={{ bloodhound_admin_password }}
+    dest: "/home/{{ ansible_user }}/bloodhound-ce/.env"
+
+- name: Spin up bloodhound-docker
+  command: docker-compose up -d
+  args:
+    chdir: /home/{{ ansible_user }}/bloodhound-ce
+
+- name: Writing admin password to file
+  local_action:
+    module: lineinfile
+    line: "{{ bloodhound_admin_password }}"
+    path: account_password.txt
+    create: true
+    insertafter: EOF
+  become: false

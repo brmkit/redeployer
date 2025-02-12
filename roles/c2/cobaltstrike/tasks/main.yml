@@ -1,0 +1,25 @@
+---
+- name: Include nix-default role
+  include_role:
+    name: utils/nix-default
+
+- name: Update java alternatives
+  command: update-alternatives --set java /usr/lib/jvm/java-11-openjdk-amd64/bin/java
+
+- name: get cobaltstrike from file folder and put into /srv/ 
+  copy:
+    src: files/cobaltstrike.tgz
+    dest: /srv/cobaltstrike.tgz
+
+- name: extract cobaltstrike
+  unarchive:
+    src: /srv/cobaltstrike.tgz
+    dest: /srv/
+    remote_src: yes
+
+- name: delete /srv/cobaltstrike.tgz  
+  file: 
+    path: /srv/cobaltstrike.tgz
+    state: absent
+
+### well - not so useful - but you get it why

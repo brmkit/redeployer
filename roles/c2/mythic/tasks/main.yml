@@ -1,0 +1,69 @@
+---
+- name: Include nix-default role
+  include_role:
+    name: utils/nix-default
+
+- name: Install Docker and Docker Compose
+  include_role:
+    name: utils/docker
+
+- name: Clone Mythic repository
+  git:
+    repo: 'https://github.com/its-a-feature/Mythic'
+    dest: "/opt/mythic"
+
+- name: Check if mythic-cli binary exists
+  stat:
+    path: /opt/mythic/mythic-cli
+  register: mythic_cli
+
+- name: Generate mythic-cli binary
+  command: sudo make
+  args:
+    chdir: /opt/mythic/
+  when: not mythic_cli.stat.exists
+  register: build_mythic_cli
+
+- name: Start Mythic C2
+  command: sudo ./mythic-cli start
+  args:
+    chdir: /opt/mythic/
+  when: build_mythic_cli.changed
+
+- name: Read Mythic C2 password
+  shell: cat /opt/mythic/.env | grep MYTHIC_ADMIN_PASSWORD | cut -d '=' -f 2
+  register: mythic_password
+
+- name: Install required Profiles
+  shell: |
+    sudo ./mythic-cli install github https://github.com/MythicC2Profiles/{{ item }}
+    sudo ./mythic-cli start {{ item }}
+  args:
+    chdir: /opt/mythic/
+  loop:
+    - http
+    - dynamichttp
+
+- name: Install required Agents
+  shell: |
+    sudo ./mythic-cli install github https://github.com/MythicAgents/{{ item }}
+    sudo ./mythic-cli start {{ item }}
+  args:
+    chdir: /opt/mythic/
+  loop:
+    - apollo
+    - athena
+
+- name: Restart Mythic C2
+  command: sudo ./mythic-cli restart
+  args:
+    chdir: /opt/mythic/
+
+- name: Writing admin password to file
+  local_action:
+    module: lineinfile
+    line: "Username \"mythic_admin\"\nPassword: {{ mythic_password.stdout }}"
+    path: account_password.txt
+    create: true
+    insertafter: EOF
+  become: false

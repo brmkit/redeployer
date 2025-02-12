@@ -1,0 +1,37 @@
+---    
+- name: Install dotnet runtime and git
+  win_chocolatey:
+    name:
+      - dotnet-6.0-runtime
+      - git
+    state: present
+
+- name: Install Visual Studio Build Tools
+  win_package:
+    path: https://aka.ms/vs/17/release/vs_BuildTools.exe
+    arguments:
+      - --norestart
+      - --passive
+      - --wait
+      - --add
+      - Microsoft.Net.Component.4.6.1.TargetingPack
+      - --add
+      - Microsoft.Net.Component.4.6.TargetingPack
+      - --add
+      - Microsoft.Net.Component.4.7.1.TargetingPack
+      - --add
+      - Microsoft.Net.Component.4.7.TargetingPack
+
+- name: Download OffPipeline.zip
+  win_get_url:
+    url: https://github.com/brmkit/OffensivePipeline/releases/download/release/OffPipeline.zip
+    dest: "C:\\OffPipeline.zip"
+
+- name: Unzip OffPipeline.zip
+  win_unzip:
+    src: "C:\\OffPipeline.zip"
+    dest: "C:\\OffPipeline"
+    
+- name: Run OffensivePipeline.exe
+  win_shell: |
+    Start-Process "C:\\OffPipeline\\OffensivePipeline.exe" -ArgumentList "all" -NoNewWindow -PassThru

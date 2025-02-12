@@ -1,0 +1,19 @@
+server {
+    listen {{ local_port | default(80) }};
+
+    location /redirectme/ {
+        proxy_pass {{ redirect_to }}$request_uri;
+        proxy_set_header Host $host;
+        proxy_set_header X-Forwarded-Host $host;
+    }
+
+    location /file/ {
+        proxy_pass {{ redirect_to_file }}$request_uri;
+        proxy_set_header Host $host;
+        proxy_set_header X-Forwarded-Host $host;
+    }
+
+    location / {
+        return 301 https://google.com;
+    }
+}

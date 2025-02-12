@@ -1,0 +1,53 @@
+---
+- name: curl the latest Kasm release version
+  command: curl -sX GET 'https://api.github.com/repos/kasmtech/kasm-install-wizard/releases/latest'
+  register: kasm_release
+
+- name: Set Kasm version
+  set_fact:
+    kasm_version: "{{ kasm_release.stdout | from_json | json_query('tag_name') }}"
+
+- name: Download Kasm release
+  get_url:
+    url: "https://github.com/kasmtech/kasm-install-wizard/releases/download/{{ kasm_version }}/kasm_release.tar.gz"
+    dest: /tmp/kasm_release.tar.gz
+
+- name: Extract Kasm release
+  unarchive:
+    src: /tmp/kasm_release.tar.gz
+    dest: /tmp
+    remote_src: yes
+
+- name: Try to pre-seed user defined images
+  copy:
+    src: "{{ playbook_dir }}/files/custom_kasm_images.yaml"
+    dest: /tmp/kasm_release/conf/database/seed_data/default_images_amd64.yaml
+  ignore_errors: true
+
+- name: Run Kasm install script
+  command: bash /tmp/kasm_release/install.sh -e -b -B -J 4096 -S all
+  register: kasm_install
+
+- name: Save Kasm install log
+  copy:
+    content: "{{ kasm_install.stdout }}"
+    dest: /tmp/kasm_install.log
+
+- name: Check if /tmp/kasm_install.log exists and get file size
+  stat:
+    path: /tmp/kasm_install.log
+  register: kasm_install_log
+
+- name: Retrieve password
+  shell: cat /tmp/kasm_install.log | tail -n 30
+  register: kasm_password
+  when: kasm_install_log.stat.exists and kasm_install_log.stat.size > 0
+
+- name: Writing admin password to file
+  local_action:
+    module: lineinfile
+    line: "{{ kasm_password.stdout_lines | join('\n') }}"
+    path: account_password.txt
+    create: true
+    insertafter: EOF
+  become: false

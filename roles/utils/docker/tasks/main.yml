@@ -1,0 +1,35 @@
+---
+- name: Adding GPG key
+  apt_key:
+    url: https://download.docker.com/linux/ubuntu/gpg
+    state: present
+
+- name: Adding docker repository
+  apt_repository:
+    repo: deb https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable
+    state: present
+
+- name: Installing docker
+  apt:
+    name:
+      - docker-ce
+      - docker-ce-cli
+      - containerd.io
+    state: latest
+    update_cache: yes
+
+- name: Checking latest docker-compose release
+  uri:
+    url: https://api.github.com/repos/docker/compose/releases/latest
+    return_content: yes
+  register: latest_release
+
+- name: Extracting docker-compose version
+  set_fact:
+    docker_compose_version: "{{ latest_release.content | from_json | json_query('tag_name') | regex_replace('v', '') }}"
+
+- name: Downloading latest docker-compose
+  get_url:
+    url: "https://github.com/docker/compose/releases/download/v{{ docker_compose_version }}/docker-compose-Linux-x86_64"
+    dest: /usr/local/bin/docker-compose
+    mode: '755'

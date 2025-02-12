@@ -1,0 +1,21 @@
+<VirtualHost *:{{ local_port | default(80) }}>
+
+    # Redirectme configuration
+    <Location /redirectme/>
+        ProxyPass {{ redirect_to }}/redirectme/
+        ProxyPassReverse {{ redirect_to }}/redirectme/
+        RequestHeader set Host %{HTTP_HOST}s
+        RequestHeader set X-Forwarded-Host %{HTTP_HOST}s
+    </Location>
+
+    # File configuration
+    <Location /file/>
+        ProxyPass {{ redirect_to_file }}/file/
+        ProxyPassReverse {{ redirect_to_file }}/file/
+        RequestHeader set Host %{HTTP_HOST}s
+        RequestHeader set X-Forwarded-Host %{HTTP_HOST}s
+    </Location>
+
+    # Default redirect
+    Redirect permanent / https://google.com
+</VirtualHost>

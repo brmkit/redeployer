@@ -1,0 +1,26 @@
+---
+- name: Include nix-default role
+  include_role:
+    name: utils/nix-default
+
+- name: Update apt cache
+  apt:
+    update_cache: yes
+
+- name: Check if sliver installed
+  stat:
+    path: /etc/systemd/system/sliver.service
+  register: installed
+
+- name: Download install script for sliver
+  get_url:
+    url: https://sliver.sh/install
+    dest: /tmp/install
+    mode: 0755
+
+- name: Install sliver from script
+  shell: bash /tmp/install
+  when: not installed.stat.exists
+
+- name: Sliver update
+  shell: "echo 'update' | sliver"

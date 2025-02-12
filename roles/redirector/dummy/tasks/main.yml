@@ -1,0 +1,20 @@
+---
+- name: Install socat
+  apt:
+    name: socat
+    state: present
+
+- name: Create systemd service for socat
+  template:
+    src: socat.service.j2
+    dest: /etc/systemd/system/socat.service
+
+- name: Reload systemd
+  systemd:
+    daemon_reload: yes
+
+- name: Enable socat service
+  systemd:
+    name: socat
+    enabled: yes
+    state: started

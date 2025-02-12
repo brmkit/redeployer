@@ -1,0 +1,35 @@
+---
+- name: Include nix-default role
+  include_role:
+    name: utils/nix-default
+
+- name: Download github repository
+  git:
+    repo: https://github.com/SygniaLabs/pwndrop.git
+    dest: /opt/pwndrop
+
+- name: Build pwndrop
+  command: make build
+  args:
+    chdir: /opt/pwndrop
+
+- name: Create pwndrop directory
+  file:
+    dest: /usr/local/pwndrop
+    state: directory
+  
+- name: Put configuration file
+  template:
+    src: pwndrop.ini.j2
+    dest: /usr/local/pwndrop/pwndrop.ini
+    force: yes
+
+- name: Install pwndrop
+  command: make install
+  args:
+    chdir: /opt/pwndrop
+
+- name: Clean install
+  command: make clean
+  args:
+    chdir: /opt/pwndrop

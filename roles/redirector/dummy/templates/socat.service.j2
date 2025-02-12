@@ -1,0 +1,10 @@
+[Unit]
+Description=Service that forwards traffic
+After=network.target
+
+[Service]
+ExecStart=/usr/bin/socat TCP-LISTEN:{{ local_port }},fork TCP4:{{ redirect_to }}:{{ destination_port }}
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

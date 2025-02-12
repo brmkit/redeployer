@@ -1,0 +1,64 @@
+---
+- name: Check if ZeroTier binary exists
+  stat:
+    path: /usr/sbin/zerotier-cli
+  register: zerotier_installed
+
+- name: Understanding if ZeroTier is installed
+  set_fact:
+    is_zerotier_installed: "{{ zerotier_installed.stat.exists }}"
+
+- name: Installing ZeroTier-Cli 
+  shell: curl -s https://install.zerotier.com | sudo bash
+  when: not is_zerotier_installed
+
+- name: Detect ZeroTier Member ID
+  shell: zerotier-cli info | awk '{print $3}'
+  register: zerotier_member_id
+
+- name: Authorize ZeroTier member using local_action
+  local_action:
+    module: uri
+    url: "https://api.zerotier.com/api/v1/network/{{ zerotier_network_id }}/member/{{ zerotier_member_id.stdout }}"
+    method: POST
+    headers:
+      Authorization: "token {{ zerotoken }}"
+      Content-Type: "application/json"
+    body: '{"config": {"authorized": true}}'
+    body_format: json
+  register: zerotier_cli_authorization
+  become: false
+  when: not is_zerotier_installed
+
+- name: Joining ZeroTier network
+  shell: zerotier-cli join {{ zerotier_network_id }}
+
+- name: Wait to get an ip from ZeroTier
+  ansible.builtin.pause:
+    seconds: 60
+  when: not is_zerotier_installed
+    
+- name: Detect ZeroTier IP address
+  shell: zerotier-cli listnetworks | tail -1 | awk '{print $9}' | cut -d'/' -f1
+  register: zerotier_ip
+  until: zerotier_ip.stdout != ""
+  retries: 20
+  delay: 15
+  
+# yes, it takes sooo long sometimes
+- name: Writing ip to file
+  local_action:
+    module: lineinfile
+    line: '  {{ ansible_hostname }}: {{ zerotier_ip.stdout }}'
+    path: zerotier_ips.yml
+    create: true
+    insertafter: EOF
+  become: false
+
+#- name: Update hosts.yml with ZeroTier IP
+#  replace:
+#    path: hosts.yml
+#    regexp: "({{ inventory_hostname }}:.*?\n\\s+zerotier_ip:) .*$"
+#    replace: "\\1 {{ zerotier_ip.stdout }}"
+#    multiline: yes
+#  delegate_to: localhost

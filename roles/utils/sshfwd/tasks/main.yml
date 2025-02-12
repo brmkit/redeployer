@@ -1,0 +1,33 @@
+---
+- name: Install autossh
+  apt:
+    name: autossh
+    state: present
+
+- name: Block every inbound connection
+  ufw:
+    state: enabled
+    rule: deny
+    direction: in
+
+- name: Allow SSH traffic
+  ufw:
+    rule: allow
+    port: '22'
+    proto: tcp
+    direction: in
+
+- name: Create a service for sshfwd
+  template:
+    src: sshfwd.service.j2
+    dest: /etc/systemd/system/sshfwd.service
+
+- name: Reload systemd
+  systemd:
+    daemon_reload: yes
+
+- name: Enable sshfwd service
+  systemd:
+    name: sshfwd
+    enabled: yes
+    state: started

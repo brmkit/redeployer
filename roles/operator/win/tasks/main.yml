@@ -1,0 +1,58 @@
+---
+- name: Rename the host
+  win_hostname:
+    name: "{{ inventory_hostname }}"
+
+- name: Install basic applications
+  win_chocolatey:
+    name:
+      - git
+      - vscode
+      - microsoft-windows-terminal
+      - firefox
+      - burp-suite-free-edition
+      - python3
+      - 7zip
+      - openjdk
+    state: present
+
+- name: Change PATH
+  win_path:
+    elements:
+      - 'C:\Program Files\OpenJDK\jdk-21.0.2\bin'
+
+- name: Destroy operator toolkit directory
+  win_file:
+    path: C:\operator-kit
+    state: absent
+
+- name: Create directory for operator toolkit
+  win_file:
+    path: C:\operator-kit\tools
+    state: directory
+
+- name: Read operators toolkit tools list
+  set_fact:
+    tools: "{{ lookup('file', 'tools.txt').split('\n') }}"
+
+#- name: Clone operator toolkit
+#  win_git:
+#    repo: "{{ item }}"
+#    chdir: C:\operator-kit\tools\
+#  loop: "{{ tools }}"
+
+- name: Create tools directory
+  win_file:
+    path: C:\operator-kit\utilities\
+    state: directory
+
+- name: Read operators toolkit utilities list
+  set_fact:
+    utilities: "{{ lookup('file', 'utilities.txt').split('\n') }}"
+
+- name: Download file from URL
+  win_get_url:
+    url: "{{ item }}"
+    dest: C:\operator-kit\utilities\
+    force: yes
+  loop: "{{ utilities }}"

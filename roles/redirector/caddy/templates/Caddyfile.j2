@@ -1,0 +1,21 @@
+(common_headers) {
+        header_up Host {http.reverse_proxy.upstream.hostport}
+        header_up X-Forwarded-Host {host}
+}
+
+# check this part
+:{{ local_port | default(443) }} {
+    handle /redirectme* {
+        reverse_proxy {{ redirect_to }}:{{ redirect_port | default(443) }} {
+            import common_headers
+        }
+    }
+
+    handle /file* {
+        reverse_proxy {{ redirect_to_file }} {
+            import common_headers
+        }
+    }
+
+    redir https://google.com
+}
