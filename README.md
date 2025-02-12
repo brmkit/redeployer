@@ -1,10 +1,11 @@
 # redeployer
 
-**red**eployer is a collection of useful Ansible playbooks that can help deploying basic... stuff.
+**red**eployer is a collection of Ansible playbooks designed to help automate the deployment of basic _offensive infrastructure components_. Whether you're setting up test environments, cloud instances, or on-prem setups, these "roles" aim to make the process simpler and faster.
 
 ## wtf?
-I was frustrated by the time it took to repeatedly perform the same actions every time I needed to set up an environment for testing and i really don't like that giant all-in-one script that surely works but... you know.
-So, I decided to use my spare times to automate some of these tasks. While it's nothing too complex, I think it's "a way" to build something better and maybe could be a starting point for anyone looking to achieve something similar. 
+I was tired of repeatedly setting up the same environments every time I needed to test something. I also hate those giant, all-in-one scripts that "_just work_" but are a nightmare to maintain.
+
+So, I started using my spare time to automate some of these tasks. While this project isn’t overly complex, I see it as a starting point for better automation. If nothing else, maybe it’ll help someone else out there save some time.
 
 Basically - if you really want - you can use this repository to configure your instances both on-prem and/or in cloud.
 Please note that this is not a "proper" Ansible Role yet, but it works fine for ~~me~~ its intended purpose.
@@ -28,6 +29,5 @@ In the `example` folder, you can find some practical and potentially ready-to-us
 
 ### work in progress
 - [ ] deploy vault and save every credentials
-- [ ] tailscale integration
 - [ ] phishing infrastructure
-- [ ] an hardening/monitoring role
+- [ ] an real hardening & monitoring role
