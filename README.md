@@ -30,4 +30,4 @@ In the `example` folder, you can find some practical and potentially ready-to-us
 ### work in progress
 - [ ] deploy vault and save every credentials
 - [ ] phishing infrastructure
-- [ ] an real hardening & monitoring role
+- [ ] real hardening & monitoring role
