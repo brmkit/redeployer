@@ -1,6 +1,6 @@
 # redeployer
 
-**red**eployer is a collection of Ansible playbooks designed to help automate the deployment of basic _offensive infrastructure components_. Whether you're setting up test environments, cloud instances, or on-prem setups, these "roles" aim to make the process simpler and faster.
+**red**eployer is a collection of Ansible roles designed to help automate the deployment of basic _offensive infrastructure components_. Whether you're setting up test environments, cloud instances, or on-prem setups, these "roles" aim to make the process simpler and faster.
 
 ## wtf?
 I was tired of repeatedly setting up the same environments every time I needed to test something. I also hate those giant, all-in-one scripts that "_just work_" but are a nightmare to maintain.
