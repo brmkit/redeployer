@@ -1,7 +1,7 @@
 ## Quick Start
 Suppose we want to deploy an infrastructure composed of five machines.
 
-This is a simple example: we choose Sliver as the C2, Caddy as the redirector, one operators machine and decide to use a Payload server (PWNDROP exposed only via vpn). Every internal connection will be managed through ZeroTier (VPN). Essentially, every legitimate packet reaching the outermost redirector will only pass through the ZeroTier VPN.
+This is a simple example: we choose Sliver as the C2, Caddy as the redirector, one operators machine and decide to use a Payload server (PWNDROP exposed only via vpn). Every internal connection will be managed through ZeroTier (VPN). Essentially, every legitimate packet reaching the outermost redirector will only pass through the ZeroTier VPN ([why?](https://brmkit.github.io/2024/10/09/ghostway-project.html)).
 
 ![image](example.png "Basic Infrastructure Example")
 
