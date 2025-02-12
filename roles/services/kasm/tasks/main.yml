@@ -18,7 +18,7 @@
     dest: /tmp
     remote_src: yes
 
-- name: Try to pre-seed user defined images
+- name: if exists - try to pre-seed user defined images
   copy:
     src: "{{ playbook_dir }}/files/custom_kasm_images.yaml"
     dest: /tmp/kasm_release/conf/database/seed_data/default_images_amd64.yaml

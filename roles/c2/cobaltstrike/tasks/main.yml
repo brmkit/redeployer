@@ -22,4 +22,4 @@
     path: /srv/cobaltstrike.tgz
     state: absent
 
-### well - not so useful - but you get it why
+### well - not so useful - but you must adapt on your way to deploy cobaltstrike license

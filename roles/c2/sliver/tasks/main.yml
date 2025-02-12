@@ -24,3 +24,14 @@
 
 - name: Sliver update
   shell: "echo 'update' | sliver"
+
+# for later use
+- name: Push sliver config files
+  become: true
+  template:
+    src: "{{ item }}"
+    dest: "/root/.sliver/config/{{ item | basename }}"
+  with_items:
+    - server.json.j2
+    - http-c2.json.j2
+  ignore_errors: true

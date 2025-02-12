@@ -4,13 +4,13 @@
 
 ## wtf?
 I was frustrated by the time it took to repeatedly perform the same actions every time I needed to set up an environment for testing and i really don't like that giant all-in-one script that surely works but... you know.
-So, I decided to use my spare times to automate some of these tasks. While it's nothing too complex, I think it's a good starting to build something better and maybe can be a starting point for anyone looking to achieve something similar. 
+So, I decided to use my spare times to automate some of these tasks. While it's nothing too complex, I think it's "a way" to build something better and maybe could be a starting point for anyone looking to achieve something similar. 
 
 Basically - if you really want - you can use this repository to configure your instances both on-prem and/or in cloud.
 Please note that this is not a "proper" Ansible Role yet, but it works fine for ~~me~~ its intended purpose.
 
 ### usage
-To deploy the desired components, follow these steps:
+To deploy, follow these steps:
 
 1. make sure you have Ansible installed on your system
 2. `git clone https://github.com/brmkit/redeployer.git`
@@ -26,3 +26,8 @@ So if you really want to use my repo: keep calm, do your own research, deploy...
 ## scenarios
 In the `example` folder, you can find some practical and potentially ready-to-use applications to understand the project. I hope they are clear enough.
 
+### work in progress
+- [ ] deploy vault and save every credentials
+- [ ] tailscale integration
+- [ ] phishing infrastructure
+- [ ] an hardening/monitoring role
